@@ -81,8 +81,8 @@ bool feetAtHomePosition = true; //Runtime variable to determine if feet should r
 ChipE myChipE; //Chip-E object (your robot!:)
 
 //--LCD Display
-const int lcdDisplayType = DRAW_CYLON; //DRAW_CYLON or DRAW_HEARTS
-const unsigned long displayUpdateInterval = 225; //milliseconds (225 Cylon default, 1000 Hearts default)
+const int lcdDisplayType = DRAW_EYES; //DRAW_CYLON or DRAW_HEARTS or DRAW_EYES
+const unsigned long displayUpdateInterval = 3000; //milliseconds defaults: 225 Cylon, 1000 Hearts, 3000 Eyes
 unsigned long lastDisplayUpdate = millis();
 
 //--Piezo effects (sounds)
@@ -105,13 +105,20 @@ void setup()
   myLCD.backlight();
   myLCD.createChar(0, heart);
   myLCD.createChar(1, char_block);
-  if ( lcdDisplayType == DRAW_CYLON )
+
+  switch( lcdDisplayType )
   {
+  case DRAW_CYLON:
     drawCylon();
-  }
-  else if ( lcdDisplayType == DRAW_HEARTS )
-  {
+    break;
+  case DRAW_EYES:
+    drawEyes( EYES_CENTER );
+    break;
+  case DRAW_HEARTS:
     drawHearts();
+    break;
+  default:
+    break;
   }
 
   //--Chip-E initialization
@@ -134,13 +141,19 @@ void loop()
   {
     lastDisplayUpdate = millis();
 
-    if ( lcdDisplayType == DRAW_CYLON )
+    switch( lcdDisplayType )
     {
+    case DRAW_CYLON:
       drawCylon();
-    }
-    else if ( lcdDisplayType == DRAW_HEARTS )
-    {
+      break;
+    case DRAW_EYES:
+      drawEyes( EYES_BLINK );
+      break;
+    case DRAW_HEARTS:
       drawHearts();
+      break;
+    default:
+      break;
     }
   }
 
@@ -153,6 +166,7 @@ void loop()
     {
       Serial.print( "UP" );
       if ( !quietChipE ) mySounds.play( soundConnection );
+      if ( lcdDisplayType == DRAW_EYES ) drawEyes( EYES_DOWN );
       myChipE.walk(1, currentGaitSpeed, FORWARD);
       while ( myGamepad.update_button_states() && myGamepad.button_press_up() )
       {
@@ -163,6 +177,7 @@ void loop()
     {
       Serial.print( "DOWN" );
       if ( !quietChipE ) mySounds.play( soundButtonPushed );
+      if ( lcdDisplayType == DRAW_EYES ) drawEyes( EYES_UP );
       myChipE.walk(1, currentGaitSpeed, BACKWARD);
       while ( myGamepad.update_button_states() && myGamepad.button_press_down() )
       {
@@ -172,11 +187,13 @@ void loop()
     if ( myGamepad.button_press_left() )
     {
       Serial.print( "LEFT" );
+      if ( lcdDisplayType == DRAW_EYES ) drawEyes( EYES_LEFT );
       myChipE.turn(1, currentGaitSpeed, LEFT);
     }
     if ( myGamepad.button_press_right() )
     {
       Serial.print( "RIGHT" );
+      if ( lcdDisplayType == DRAW_EYES ) drawEyes( EYES_RIGHT );
       myChipE.turn(1, currentGaitSpeed, RIGHT);
     }
 
@@ -194,6 +211,7 @@ void loop()
     if ( myGamepad.button_press_b() )
     {
       Serial.print( "B" );
+      if ( lcdDisplayType == DRAW_EYES ) drawEyes( EYES_UP );
       myChipE.updown(1, 500, SMALL);
     }
     if ( myGamepad.button_press_tb() )
@@ -247,6 +265,7 @@ void loop()
   }
   else if ( lastGamepadUpdate + 3000 < millis() && !feetAtHomePosition )
   {
+    if ( lcdDisplayType == DRAW_EYES ) drawEyes( EYES_CENTER );
     myChipE.home();
     if ( !quietChipE ) mySounds.play( soundDisconnection );
     feetAtHomePosition = true;
