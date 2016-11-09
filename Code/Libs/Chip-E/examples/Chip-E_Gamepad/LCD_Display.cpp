@@ -3,8 +3,9 @@
 LiquidCrystal_I2C myLCD(0x27, 16, 2); //2x16 LCD control @ address 0x27
 
 //--Custom characters for LCD display
-const uint8_t heart[8] = {0x0, 0xa, 0x1f, 0x1f, 0xe, 0x4, 0x0};
-const uint8_t char_block[8] = { 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F };
+const uint8_t char_heart[8] = { 0x00, 0xA0, 0x1F, 0x1F, 0xE0, 0x40, 0x00, 0x00 };
+const uint8_t char_block[8] = { 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F };
+const uint8_t char_line[8] = { 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04 };
 
 //--Heart pattern variables
 bool displayHeartsInverse = false;
@@ -59,6 +60,29 @@ void drawCylon()
 void drawEyes( int eyePosition )
 {
   myLCD.clear();
+
+  //right eye edges
+  myLCD.setCursor(1, 0);
+  myLCD.write(2); //line
+  myLCD.setCursor(1, 1);
+  myLCD.write(2); //line
+
+  myLCD.setCursor(5, 0);
+  myLCD.write(2); //line
+  myLCD.setCursor(5, 1);
+  myLCD.write(2); //line
+
+  //left eye edges
+  myLCD.setCursor(10, 0);
+  myLCD.write(2); //line
+  myLCD.setCursor(10, 1);
+  myLCD.write(2); //line
+
+  myLCD.setCursor(14, 0);
+  myLCD.write(2); //line
+  myLCD.setCursor(14, 1);
+  myLCD.write(2); //line
+
   switch( eyePosition )
   {
   case EYES_LEFT:
@@ -104,7 +128,7 @@ void drawEyes( int eyePosition )
     myLCD.write(1); //block
     break;
   case EYES_BLINK:
-    delay(100); //lcd is clear so we pause for just a moment to blink
+    delay(250); //lcd is clear so we pause for just a moment to blink
     drawEyes( lastEyesPosition );
     return; //returning because we do not need to store blink as the last position
   default:

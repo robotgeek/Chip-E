@@ -24,8 +24,9 @@ enum LCD_EYE_POSITIONS
 
 extern LiquidCrystal_I2C myLCD;
 
-extern const uint8_t heart[8];
+extern const uint8_t char_heart[8];
 extern const uint8_t char_block[8];
+extern const uint8_t char_line[8];
 
 void drawCylon();
 void drawEyes( int eyePosition );

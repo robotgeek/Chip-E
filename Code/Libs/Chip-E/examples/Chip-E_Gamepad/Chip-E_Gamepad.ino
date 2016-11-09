@@ -103,8 +103,9 @@ void setup()
   //--LCD initialization
   myLCD.begin();
   myLCD.backlight();
-  myLCD.createChar(0, heart);
+  myLCD.createChar(0, char_heart);
   myLCD.createChar(1, char_block);
+  myLCD.createChar(2, char_line);
 
   switch( lcdDisplayType )
   {
@@ -147,7 +148,7 @@ void loop()
       drawCylon();
       break;
     case DRAW_EYES:
-      drawEyes( EYES_BLINK );
+      if ( feetAtHomePosition ) drawEyes( EYES_BLINK ); //Blink when inactive
       break;
     case DRAW_HEARTS:
       drawHearts();
