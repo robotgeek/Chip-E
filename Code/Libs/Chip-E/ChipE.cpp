@@ -113,7 +113,6 @@ void ChipE::_execute(int A[4], int O[4], int T, double phase_diff[4], float step
   oscillateServos(A, O, T, phase_diff, (float)steps - cycles);
 }
 
-
 //------------------------------------------------
 //-- ChipE gait: Walking  (forward or backward)
 //-- Parameters:
@@ -170,7 +169,6 @@ void ChipE::turn(float steps, int T, int dir)
   //-- Let's oscillate the servos!
   _execute(A, O, T, phase_diff, steps);
 }
-
 
 //------------------------------------------------------
 //-- ChipE movement: up-down
@@ -267,14 +265,6 @@ void ChipE::crusaito(float steps, int T, int h, int dir)
   _execute(A, O, T, phase_diff, steps);
 }
 
-void ChipE::jump(float steps, int T)
-{
-  int up[] = {90, 90, 150, 30};
-  moveServos(T, up);
-  int down[] = {90, 90, 90, 90};
-  moveServos(T, down);
-}
-
 //-----------------------------------------------------
 //-- ChipE gait: Flapping
 //--
@@ -294,7 +284,31 @@ void ChipE::flapping(float steps, int T, int h, int dir)
   _execute(A, O, T, phase_diff, steps);
 }
 
+//-----------------------------------------------------
+//-- ChipE gait: skateboard
+//--
+//--  Parameters:
+//--    steps: Number of pumps
+//--    T: Period
+//------------------------------------------------------
+void ChipE::skateboard(int steps, int T)
+{
+  //YawL, YawR, RollL, RollR
+  int shiftToRight[] = {90, 90, 130, 110};
+  moveServos(T, shiftToRight);
 
+  while ( steps-- > 0 )
+  {
+    int leftFootUp[] = {90, 90, 110, 110};
+    moveServos(T / 2, leftFootUp);
 
+    int leftFootForward[] = {90, 70, 110, 110};
+    moveServos(T / 2, leftFootForward);
 
+    int leftFootDown[] = {90, 90, 140, 110};
+    moveServos(T, leftFootDown);
 
+    int leftFootBackward[] = {90, 110, 145, 110};
+    moveServos(T, leftFootBackward);
+  }
+}
