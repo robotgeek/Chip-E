@@ -7,6 +7,6 @@ To get started copy the Chip-E and Oscillator folders to your Arduino/libraries 
 
 The Chip-E library and examples depend on other RobotGeek and 3rd party libraries available [here](https://github.com/robotgeek/robotGeekLibrariesAndtools).
 
-Visit www.robotgeek.com for more information. You can also find Chip-E on [Thingiverse](http://www.thingiverse.com/thing:1795648).
+Visit https://www.robotgeek.com/robotgeek-chip-e.aspx for more information. You can also find Chip-E on [Thingiverse](http://www.thingiverse.com/thing:1795648).
 
 Special thanks to [JavierIH](https://github.com/JavierIH) for the excellent work on the Zowi project.
