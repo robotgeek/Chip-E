@@ -24,8 +24,8 @@
  *    IR Receiver - Digital Pin 2
  *    Left Hip Servo - Digital Pin 10
  *    Right Hip Servo - Digital Pin 9
- *    Left Ankle Servo - Digital Pin 5
- *    Right Ankle Servo - Digital Pin 2
+ *    Left Ankle Servo - Digital Pin 6
+ *    Right Ankle Servo - Digital Pin 5
  *
  *    Jumper for pins 9/10/11 should be set to 'VIN'
  *    Jumper for pins 3/5/6 should be set to 'VIN'
@@ -58,8 +58,8 @@
  * RR ==>   -----   ------  <== RL
  *          -----   ------
 */
-const int PIN_RR = 3; //Roll Right
-const int PIN_RL = 5; //Roll Left
+const int PIN_RR = 5; //Roll Right
+const int PIN_RL = 6; //Roll Left
 const int PIN_YR = 9; //Yaw Right
 const int PIN_YL = 10; //Yaw Left
 const int TRIM_RR = -5; //Trim on the right ankle (adjust +/- as necessary)
