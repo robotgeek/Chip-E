@@ -293,13 +293,9 @@ void ChipE::flapping(float steps, int T, int h, int dir)
 //------------------------------------------------------
 void ChipE::skateboard(int steps, int T)
 {
-  //YawL, YawR, RollL, RollR
-  int shiftToRight[] = {90, 90, 130, 110};
-  moveServos(T, shiftToRight);
-
   while ( steps-- > 0 )
   {
-    int leftFootUp[] = {90, 90, 110, 110};
+    int leftFootUp[] = {90, 90, 110, 110}; //YawL, YawR, RollL, RollR
     moveServos(T / 2, leftFootUp);
 
     int leftFootForward[] = {90, 70, 110, 110};
@@ -311,4 +307,8 @@ void ChipE::skateboard(int steps, int T)
     int leftFootBackward[] = {90, 110, 145, 110};
     moveServos(T, leftFootBackward);
   }
+
+  int leftFootUp[] = {90, 90, 110, 110};
+  moveServos(T * 2, leftFootUp);
 }
+
