@@ -69,10 +69,14 @@ const int PIN_RR = 5; //Roll Right
 const int PIN_RL = 6; //Roll Left
 const int PIN_YR = 9; //Yaw Right
 const int PIN_YL = 10; //Yaw Left
+const int PIN_LA = 3; //Left Arm
+const int PIN_RA = 11; //Right Arm
 const int TRIM_RR = 0; //Trim on the right ankle (adjust +/- as necessary)
 const int TRIM_RL = 0; //Trim on the left ankle (adjust +/- as necessary)
 const int TRIM_YR = 0; //Trim on the right hip (adjust +/- as necessary)
 const int TRIM_YL = 0; //Trim on the left hip (adjust +/- as necessary)
+const int TRIM_LA = 0; //Left Arm
+const int TRIM_RA = 0; //Right Arm
 int currentGaitSpeed = 1000; //The current gait speed in milliseconds.
 const int minGaitSpeed = 4000; //The slowest gait speed selectable by gamepad in milliseconds.
 const int maxGaitSpeed = 600; //The fastest gait speed selectable by gamepad in milliseconds.
@@ -123,8 +127,8 @@ void setup()
   }
 
   //--Chip-E initialization
-  myChipE.init(PIN_YL, PIN_YR, PIN_RL, PIN_RR);
-  myChipE.setTrims(TRIM_YL, TRIM_YR, TRIM_RL, TRIM_RR); //Set the servo trims
+  myChipE.init(PIN_YL, PIN_YR, PIN_RL, PIN_RR, PIN_LA, PIN_RA);
+  myChipE.setTrims(TRIM_YL, TRIM_YR, TRIM_RL, TRIM_RR, TRIM_LA, TRIM_RA); //Set the servo trims
   myChipE.home(); //Move feet to home position
   delay(500);
 

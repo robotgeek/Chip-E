@@ -12,16 +12,18 @@ Chip-E library derived from https://github.com/JavierIH/zowi
 #include "ChipE.h"
 #include <Oscillator.h>
 
-void ChipE::init(int YL, int YR, int RL, int RR, bool load_calibration)
+void ChipE::init(int YL, int YR, int RL, int RR, int LA, int RA, bool load_calibration)
 {
   servo[0].attach(YL);
   servo[1].attach(YR);
   servo[2].attach(RL);
   servo[3].attach(RR);
+  servo[4].attach(LA);
+  servo[5].attach(RA);
 
   if (load_calibration)
   {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < SERVO_COUNT; i++)
     {
       int servo_trim = EEPROM.read(i);
       if (servo_trim > 128) servo_trim -= 256;
@@ -29,46 +31,48 @@ void ChipE::init(int YL, int YR, int RL, int RR, bool load_calibration)
     }
   }
 
-  for (int i = 0; i < 4; i++) servo_position[i] = 90;
+  for (int i = 0; i < SERVO_COUNT; i++) servo_position[i] = 90;
 }
 
-void ChipE::setTrims(int YL, int YR, int RL, int RR)
+void ChipE::setTrims(int YL, int YR, int RL, int RR, int LA, int RA)
 {
   servo[0].SetTrim(YL);
   servo[1].SetTrim(YR);
   servo[2].SetTrim(RL);
   servo[3].SetTrim(RR);
+  servo[4].SetTrim(LA);
+  servo[5].SetTrim(RA);
 }
 
 void ChipE::saveTrimsOnEEPROM()
 {
-  for (int i = 0; i < 4; i++) EEPROM.write(i, servo[i].getTrim());
+  for (int i = 0; i < SERVO_COUNT; i++) EEPROM.write(i, servo[i].getTrim());
 }
 
 void ChipE::moveServos(int time, int  servo_target[])
 {
   if(time > 10)
   {
-    for (int i = 0; i < 4; i++) increment[i] = ((servo_target[i]) - servo_position[i]) / (time / 10.0);
+    for (int i = 0; i < SERVO_COUNT; i++) increment[i] = ((servo_target[i]) - servo_position[i]) / (time / 10.0);
     final_time =  millis() + time;
 
     for (int iteration = 1; millis() < final_time; iteration++)
     {
       partial_time = millis() + 10;
-      for (int i = 0; i < 4; i++) servo[i].SetPosition(servo_position[i] + (iteration * increment[i]));
+      for (int i = 0; i < SERVO_COUNT; i++) servo[i].SetPosition(servo_position[i] + (iteration * increment[i]));
       while (millis() < partial_time); //pause
     }
   }
   else
   {
-    for (int i = 0; i < 4; i++) servo[i].SetPosition(servo_target[i]);
+    for (int i = 0; i < SERVO_COUNT; i++) servo[i].SetPosition(servo_target[i]);
   }
-  for (int i = 0; i < 4; i++) servo_position[i] = servo_target[i];
+  for (int i = 0; i < SERVO_COUNT; i++) servo_position[i] = servo_target[i];
 }
 
-void ChipE::oscillateServos(int A[4], int O[4], int T, double phase_diff[4], float cycle = 1)
+void ChipE::oscillateServos(int A[SERVO_COUNT], int O[SERVO_COUNT], int T, double phase_diff[SERVO_COUNT], float cycle = 1)
 {
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < SERVO_COUNT; i++)
   {
     servo[i].SetO(O[i]);
     servo[i].SetA(A[i]);
@@ -78,7 +82,7 @@ void ChipE::oscillateServos(int A[4], int O[4], int T, double phase_diff[4], flo
   double ref = millis();
   for (double x = ref; x <= T * cycle + ref; x = millis())
   {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < SERVO_COUNT; i++)
     {
       servo[i].refresh();
     }
@@ -92,15 +96,15 @@ void ChipE::home()
 {
   //-- All the parameters are set to 0
   //-- If the amplitudes are 0, there are no oscillation
-  int A[4] = {0, 0, 0, 0};
-  int O[4] = {0, 0, 0, 0};
-  double phase_diff[4] = {0, 0, 0, 0};
+  int A[SERVO_COUNT] = {0, 0, 0, 0, 0, 0};
+  int O[SERVO_COUNT] = {0, 0, 0, 0, 0 , 0};
+  double phase_diff[SERVO_COUNT] = {0, 0, 0, 0, 0, 0};
 
   //-- Let's update the oscillators parameters!
   oscillateServos(A, O, 500, phase_diff, 1);
 }
 
-void ChipE::_execute(int A[4], int O[4], int T, double phase_diff[4], float steps = 1.0)
+void ChipE::_execute(int A[SERVO_COUNT], int O[SERVO_COUNT], int T, double phase_diff[SERVO_COUNT], float steps = 1.0)
 {
   int cycles = (int)steps;
 
@@ -129,9 +133,9 @@ void ChipE::walk(float steps, int T, int dir)
   //--      -90 : Walk forward
   //--       90 : Walk backward
   //-- Feet servos also have the same offset (for tiptoe a little bit)
-  int A[4] = {30, 30, 20, 20};
-  int O[4] = {0, 0, 4, -4};
-  double phase_diff[4] = {0, 0, DEG2RAD(dir * -90), DEG2RAD(dir * -90)};
+  int A[SERVO_COUNT] = {30, 30, 20, 20, 10, 10};
+  int O[SERVO_COUNT] = {0, 0, 4, -4, 0, 0};
+  double phase_diff[SERVO_COUNT] = {0, 0, DEG2RAD(dir * -90), DEG2RAD(dir * -90), 0, 0};
 
   //-- Let's oscillate the servos!
   _execute(A, O, T, phase_diff, steps);
@@ -151,9 +155,9 @@ void ChipE::turn(float steps, int T, int dir)
   //-- When the right hip servo amplitude is higher, the steps taken by
   //--   the right leg are bigger than the left. So, the robot describes an
   //--   left arc
-  int A[4] = {30, 30, 20, 20};
-  int O[4] = {0, 0, 4, -4};
-  double phase_diff[4] = {0, 0, DEG2RAD(-90), DEG2RAD(-90)};
+  int A[SERVO_COUNT] = {30, 30, 20, 20, 10, 10};
+  int O[SERVO_COUNT] = {0, 0, 4, -4, 0, 0};
+  double phase_diff[SERVO_COUNT] = {0, 0, DEG2RAD(-90), DEG2RAD(-90), 0, 0};
 
   if (dir == LEFT)
   {
@@ -186,9 +190,9 @@ void ChipE::updown(float steps, int T, int h)
   //-- Feet amplitude and offset are the same
   //-- Initial phase for the right foot is -90, so that it starts
   //--   in one extreme position (not in the middle)
-  int A[4] = {0, 0, h, h};
-  int O[4] = {0, 0, h, -h};
-  double phase_diff[4] = {0, 0, DEG2RAD(-90), DEG2RAD(90)};
+  int A[SERVO_COUNT] = {0, 0, h, h, 0, 0};
+  int O[SERVO_COUNT] = {0, 0, h, -h, 0, 0};
+  double phase_diff[SERVO_COUNT] = {0, 0, DEG2RAD(-90), DEG2RAD(90), 0, 0};
 
   //-- Let's oscillate the servos!
   _execute(A, O, T, phase_diff, steps);
@@ -216,10 +220,10 @@ void ChipE::moonwalker(float steps, int T, int h, int dir)
   //--  Both amplitudes are equal. The offset is half the amplitud plus a little bit of
   //-   offset so that the robot tiptoe lightly
 
-  int A[4] = {0, 0, h, h};
-  int O[4] = {0, 0, h / 2 + 2, -h / 2 - 2};
+  int A[SERVO_COUNT] = {0, 0, h, h, h, h};
+  int O[SERVO_COUNT] = {0, 0, h / 2 + 2, -h / 2 - 2, 0, 0};
   int phi = -dir * 90;
-  double phase_diff[4] = {0, 0, DEG2RAD(phi), DEG2RAD(-60 * dir + phi)};
+  double phase_diff[SERVO_COUNT] = {0, 0, DEG2RAD(phi), DEG2RAD(-60 * dir + phi), 0, 0};
 
   //-- Let's oscillate the servos!
   _execute(A, O, T, phase_diff, steps);
@@ -238,9 +242,9 @@ void ChipE::swing(float steps, int T, int h)
 
   //-- Both feets are in phase. The offset is half the amplitude
   //-- It causes the robot to swing from side to side
-  int A[4] = {0, 0, h, h};
-  int O[4] = {0, 0, h / 2, -h / 2};
-  double phase_diff[4] = {0, 0, DEG2RAD(0), DEG2RAD(0)};
+  int A[SERVO_COUNT] = {0, 0, h, h, h, h};
+  int O[SERVO_COUNT] = {0, 0, h / 2, -h / 2, 0, 0};
+  double phase_diff[SERVO_COUNT] = {0, 0, DEG2RAD(0), DEG2RAD(0), 0, 0};
 
   //-- Let's oscillate the servos!
   _execute(A, O, T, phase_diff, steps);
@@ -257,9 +261,9 @@ void ChipE::swing(float steps, int T, int h)
 //------------------------------------------------------------------
 void ChipE::crusaito(float steps, int T, int h, int dir)
 {
-  int A[4] = {25, 25, h, h};
-  int O[4] = {0, 0, h / 2 + 4, -h / 2 - 4};
-  double phase_diff[4] = {90, 90, DEG2RAD(0), DEG2RAD(-60 * dir)};
+  int A[SERVO_COUNT] = {25, 25, h, h, 0, 0};
+  int O[SERVO_COUNT] = {0, 0, h / 2 + 4, -h / 2 - 4, 0, 0};
+  double phase_diff[SERVO_COUNT] = {90, 90, DEG2RAD(0), DEG2RAD(-60 * dir), 0, 0};
 
   //-- Let's oscillate the servos!
   _execute(A, O, T, phase_diff, steps);
@@ -276,9 +280,9 @@ void ChipE::crusaito(float steps, int T, int h, int dir)
 //------------------------------------------------------
 void ChipE::flapping(float steps, int T, int h, int dir)
 {
-  int A[4] = {12, 12, h, h};
-  int O[4] = {0, 0, h - 10, -h + 10};
-  double phase_diff[4] = {DEG2RAD(0), DEG2RAD(180), DEG2RAD(-90 * dir), DEG2RAD(90 * dir)};
+  int A[SERVO_COUNT] = {12, 12, h, h, 0, 0};
+  int O[SERVO_COUNT] = {0, 0, h - 10, -h + 10, 0, 0};
+  double phase_diff[SERVO_COUNT] = {DEG2RAD(0), DEG2RAD(180), DEG2RAD(-90 * dir), DEG2RAD(90 * dir), 0, 0};
 
   //-- Let's oscillate the servos!
   _execute(A, O, T, phase_diff, steps);
@@ -293,22 +297,22 @@ void ChipE::flapping(float steps, int T, int h, int dir)
 //------------------------------------------------------
 void ChipE::skateboard(int steps, int T)
 {
-  //YawL, YawR, RollL, RollR
-  int shiftToRight[] = {90, 90, 130, 110};
-  moveServos(T, shiftToRight);
-
   while ( steps-- > 0 )
   {
-    int leftFootUp[] = {90, 90, 110, 110};
+    int leftFootUp[] = {90, 90, 110, 110, 90, 90}; //YawL, YawR, RollL, RollR
     moveServos(T / 2, leftFootUp);
 
-    int leftFootForward[] = {90, 70, 110, 110};
+    int leftFootForward[] = {90, 70, 110, 110, 90, 90};
     moveServos(T / 2, leftFootForward);
 
-    int leftFootDown[] = {90, 90, 140, 110};
+    int leftFootDown[] = {90, 90, 140, 110, 90, 90};
     moveServos(T, leftFootDown);
 
-    int leftFootBackward[] = {90, 110, 145, 110};
+    int leftFootBackward[] = {90, 110, 145, 110, 90, 90};
     moveServos(T, leftFootBackward);
   }
+
+  int leftFootUp[] = {90, 90, 110, 110, 90, 90};
+  moveServos(T * 2, leftFootUp);
+
 }
