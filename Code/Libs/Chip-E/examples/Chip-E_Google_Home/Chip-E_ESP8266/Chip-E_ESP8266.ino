@@ -37,8 +37,8 @@
  ***********************************************************************************/
 
 #include <ChipE.h>
+#include <ChipE_LCD.h>
 #include <PiezoEffects.h>
-#include "LCD_Display.h"
 
 //--Chip-E
 /*

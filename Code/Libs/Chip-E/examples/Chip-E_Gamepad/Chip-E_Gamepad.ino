@@ -44,8 +44,7 @@
 #include <PiezoEffects.h>
 
 #include <ChipE.h>
-
-#include "LCD_Display.h"
+#include <ChipE_LCD.h>
 
 //--Chip-E
 /*

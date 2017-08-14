@@ -1,5 +1,5 @@
-#ifndef LCD_DISPLAY_H
-#define LCD_DISPLAY_H
+#ifndef CHIPE_LCD_H
+#define CHIPE_LCD_H
 
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>

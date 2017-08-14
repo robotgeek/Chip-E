@@ -1,6 +1,12 @@
-#include "LCD_Display.h"
+#include "ChipE_LCD.h"
 
-LiquidCrystal_I2C myLCD(0x27, 16, 2); //2x16 LCD control @ address 0x27
+/*
+Notice of change:
+New LCD displays are shipped using addres 0x3F.
+If you do not see charaters on Chip-E's display and you received your display before July 2017 it might use address 0x27
+*/
+LiquidCrystal_I2C myLCD(0x3F, 16, 2); //2x16 LCD control @ address 0x3F
+//LiquidCrystal_I2C myLCD(0x27, 16, 2); //2x16 LCD control @ address 0x27
 
 //--Custom characters for LCD display
 const uint8_t char_heart[8] = { 0x00, 0xA0, 0x1F, 0x1F, 0xE0, 0x40, 0x00, 0x00 };
@@ -128,7 +134,7 @@ void drawEyes( int eyePosition )
     myLCD.write(1); //block
     break;
   case EYES_BLINK:
-    delay(250); //lcd is clear so we pause for just a moment to blink
+    delay(100); //lcd is clear so we pause for just a moment to blink
     drawEyes( lastEyesPosition );
     return; //returning because we do not need to store blink as the last position
   default:
